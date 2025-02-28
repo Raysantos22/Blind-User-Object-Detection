@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="tvLocationUrl" type="id" />
+    <item name="btnShareLocation" type="id" />
+    <item name="btnOpenMaps" type="id" />
+    <item name="btnSendSms" type="id" />
+    <item name="guardianNameInput" type="id" />
+    <item name="guardianPhoneInput" type="id" />
+    <item name="guardiansRecyclerView" type="id" />
+    <item name="emptyGuardiansText" type="id" />
+    <item name="addGuardianButton" type="id" />
+    <item name="guardianName" type="id" />
+    <item name="guardianPhone" type="id" />
+    <item name="editGuardianButton" type="id" />
+    <item name="deleteGuardianButton" type="id" />
+    <item name="phoneNumberInput" type="id" />
+</resources>

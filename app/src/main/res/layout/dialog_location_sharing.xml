@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/layout/dialog_location_sharing.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Share your current location"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tvLocationUrl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="https://maps.google.com/?q=0,0"
+        android:textIsSelectable="true"
+        android:padding="8dp"
+        android:background="#F0F0F0"
+        android:layout_marginBottom="24dp"/>
+
+    <Button
+        android:id="@+id/btnShareLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Share via Apps"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btnOpenMaps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Open in Google Maps"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btnSendSms"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send via SMS"/>
+
+</LinearLayout>

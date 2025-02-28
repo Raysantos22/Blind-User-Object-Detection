@@ -1,0 +1,18 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <color name="background">#000000</color>
+    <style name="Base.Theme.YOLOv5TfLite" parent="Theme.MaterialComponents.Light.NoActionBar">
+
+        <item name="android:navigationBarColor">@color/colorBlack</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowSharedElementsUseOverlay">false</item>
+        <item name="android:windowContentTransitions">true</item>
+        <!-- Other theme attributes -->
+    </style>
+
+
+    <style name="Theme.YOLOv8TfLite" parent="Base.Theme.YOLOv5TfLite" />
+</resources>
