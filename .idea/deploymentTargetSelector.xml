@@ -4,13 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="Blind_Users_Object_Detection.app">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-01-20T15:48:51.676777400Z">
+        <DropdownSelection timestamp="2025-04-03T04:21:28.992430200Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=10898373CP000263" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\PROGRAMMER\.android\avd\EMS_SIR_MARK.avd" />
             </handle>
           </Target>
         </DropdownSelection>

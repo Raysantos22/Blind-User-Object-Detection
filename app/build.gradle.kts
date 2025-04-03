@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.surendramaran.yolov5"
+    namespace = "com.BlindDetection"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.surendramaran.yolov5"
+        applicationId = "com.BlindDetection"
         minSdk = 21
         targetSdk = 34
         versionCode = 1
