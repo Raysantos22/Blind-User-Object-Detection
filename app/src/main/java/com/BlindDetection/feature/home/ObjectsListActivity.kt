@@ -16,16 +16,17 @@ class ObjectsListActivity : AppCompatActivity() {
     // List of all detectable objects
     private val detectableObjects = listOf(
         "person", "bicycle", "car", "motorcycle", "bus", "bench", "cat", "dog", 
-        "backpack", "umbrella", "handbag", "tie", "suitcase", "bottle", "wine glass", 
+        "backpack", "umbrella", "handbag", "tie", "suitcase", "bottle", "wine", "glass",
         "cup", "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", 
-        "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "couch", 
+        "traffic light", "teddy bear", "pizza", "donut", "cake", "chair", "couch",
         "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote", 
         "keyboard", "cell phone", "microwave", "oven", "toaster", "refrigerator", "book", 
-        "clock", "vase"
+        "clock", "stop sign", "vase"
     )
 
     // Map of objects to their drawable resources (you'll need to add these drawables)
     private val objectDrawables = mapOf(
+
         "person" to R.drawable.img_3,
         "bicycle" to R.drawable.img_1,
         "car" to R.drawable.img_2,
@@ -36,6 +37,7 @@ class ObjectsListActivity : AppCompatActivity() {
         "dog" to R.drawable.img_7,
         "backpack" to R.drawable.img_8,
         "umbrella" to R.drawable.img_9,
+
         "tie" to R.drawable.img_10,
         "suitcase" to R.drawable.img_11,
         "bottle" to R.drawable.img_12,
@@ -46,6 +48,7 @@ class ObjectsListActivity : AppCompatActivity() {
         "knife" to R.drawable.img_17,
         "spoon" to R.drawable.img_18,
         "bowl" to R.drawable.img_19,
+
         "banana" to R.drawable.img_20,
         "apple" to R.drawable.img_21,
         "sandwich" to R.drawable.img_22,
@@ -56,6 +59,7 @@ class ObjectsListActivity : AppCompatActivity() {
         "toilet" to R.drawable.img_27,
         "tv" to R.drawable.img_28,
         "laptop" to R.drawable.img_29,
+
         "mouse" to R.drawable.img_30,
         "remote" to R.drawable.img_31,
         "keyboard" to R.drawable.img_32,
@@ -66,10 +70,11 @@ class ObjectsListActivity : AppCompatActivity() {
         "refrigerator" to R.drawable.img_37,
         "book" to R.drawable.img_38,
         "clock" to R.drawable.img_39,
-        "vase" to R.drawable.img_40,
-        "broccoli" to R.drawable.img_41,
-        "carrot" to R.drawable.img_42,
-        "hot dog" to R.drawable.img_43,
+
+        "traffic light" to R.drawable.img_53,
+        "stop sign" to R.drawable.img_52,
+        "teddy bear" to R.drawable.img_51,
+//        "hot dog" to R.drawable.img_43,
         "pizza" to R.drawable.img_44,
         "donut" to R.drawable.img_45,
         "cake" to R.drawable.img_46,
@@ -77,7 +82,7 @@ class ObjectsListActivity : AppCompatActivity() {
         "couch" to R.drawable.img_48,
         "wine glass" to R.drawable.img_49,
         "handbag" to R.drawable.img_50,
-
+        "vase" to R.drawable.img_40,
 
         // Add more mappings as needed, or use placeholder icons
     )

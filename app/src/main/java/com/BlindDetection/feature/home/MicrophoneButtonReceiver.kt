@@ -17,11 +17,11 @@ class MicrophoneButtonReceiver : BroadcastReceiver() {
         const val ACTION_SINGLE_PRESS = "com.BlindDetection.SINGLE_PRESS"
         const val ACTION_DOUBLE_PRESS = "com.BlindDetection.DOUBLE_PRESS"
         const val ACTION_TRIPLE_PRESS = "com.BlindDetection.TRIPLE_PRESS"
-        const val ACTION_QUADRUPLE_PRESS = "com.BlindDetection.yolov5.QUADRUPLE_PRESS" // Add this line
+        const val ACTION_QUADRUPLE_PRESS = "com.BlindDetection.QUADRUPLE_PRESS"
+        const val ACTION_FIVE_PRESS = "com.BlindDetection.FIVE_PRESS" // Add this
+        const val ACTION_SIX_PRESS = "com.BlindDetection.SIX_PRESS" // Add this
 
-        private const val DOUBLE_PRESS_DELAY = 300L // Time window for double press
-        private const val TRIPLE_PRESS_DELAY = 500L // Time window for triple press
-        private const val QUADRUPLE_PRESS_DELAY = 650L // Time window for quadruple press
+        private const val MULTI_PRESS_DELAY = 500L // Time window for multi-press detection
     }
 
     private var pressCount = 0
@@ -45,7 +45,7 @@ class MicrophoneButtonReceiver : BroadcastReceiver() {
     private fun handleButtonPress(context: Context?) {
         val currentTime = System.currentTimeMillis()
 
-        if (currentTime - lastPressTime > QUADRUPLE_PRESS_DELAY) {
+        if (currentTime - lastPressTime > MULTI_PRESS_DELAY) {
             // Reset counter if too much time has passed
             pressCount = 0
         }
@@ -53,42 +53,20 @@ class MicrophoneButtonReceiver : BroadcastReceiver() {
         pressCount++
         lastPressTime = currentTime
 
-        when (pressCount) {
-            1 -> {
-                // Wait to see if there's a second press
-                handler.postDelayed({
-                    if (pressCount == 1) {
-                        // Single press confirmed
-                        context?.sendBroadcast(Intent(ACTION_SINGLE_PRESS))
-                        pressCount = 0
-                    }
-                }, DOUBLE_PRESS_DELAY)
+        // Clear any pending handlers to avoid inconsistent states
+        handler.removeCallbacksAndMessages(null)
+
+        // Set a timer to process after delay
+        handler.postDelayed({
+            when (pressCount) {
+                1 -> context?.sendBroadcast(Intent(ACTION_SINGLE_PRESS))
+                2 -> context?.sendBroadcast(Intent(ACTION_DOUBLE_PRESS))
+                3 -> context?.sendBroadcast(Intent(ACTION_TRIPLE_PRESS))
+                4 -> context?.sendBroadcast(Intent(ACTION_QUADRUPLE_PRESS))
+                5 -> context?.sendBroadcast(Intent(ACTION_FIVE_PRESS))
+                6 -> context?.sendBroadcast(Intent(ACTION_SIX_PRESS))
             }
-            2 -> {
-                // Wait to see if there's a third press
-                handler.postDelayed({
-                    if (pressCount == 2) {
-                        // Double press confirmed
-                        context?.sendBroadcast(Intent(ACTION_DOUBLE_PRESS))
-                        pressCount = 0
-                    }
-                }, DOUBLE_PRESS_DELAY)
-            }
-            3 -> {
-                // Wait to see if there's a fourth press
-                handler.postDelayed({
-                    if (pressCount == 3) {
-                        // Triple press confirmed
-                        context?.sendBroadcast(Intent(ACTION_TRIPLE_PRESS))
-                        pressCount = 0
-                    }
-                }, DOUBLE_PRESS_DELAY)
-            }
-            4 -> {
-                // Quadruple press detected
-                context?.sendBroadcast(Intent(ACTION_QUADRUPLE_PRESS))
-                pressCount = 0
-            }
-        }
+            pressCount = 0
+        }, MULTI_PRESS_DELAY)
     }
 }

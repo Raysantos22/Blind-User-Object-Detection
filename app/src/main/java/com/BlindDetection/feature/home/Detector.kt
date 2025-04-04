@@ -318,6 +318,7 @@ class Detector(
     private var lastAnnouncedObjects = mutableMapOf<String, ObjectState>()
     private var isPaused = false
     private var gpuDelegate: GpuDelegate? = null
+    private var areAnnouncementsPaused = false
 
     private data class ObjectState(
         val distance: Float,
@@ -467,6 +468,26 @@ class Detector(
             }
         }
     }
+    fun pauseAllAnnouncements() {
+        areAnnouncementsPaused = true
+        if (isSpeaking) {
+            textToSpeech.stop()
+            isSpeaking = false
+        }
+        if (isListening) {
+            speechRecognizer.stopListening()
+            isListening = false
+        }
+
+        // Clear any pending operation
+        lastSpokenTime = 0L
+    }
+
+    fun resumeAllAnnouncements() {
+        areAnnouncementsPaused = false
+        // Give feedback to user that announcements are resumed
+        vibratePattern(longArrayOf(0, 100, 50, 100))
+    }
 
     // All your existing methods...
 
@@ -592,6 +613,8 @@ class Detector(
     }
 
     fun speak(text: String, force: Boolean = false) {
+        if (areAnnouncementsPaused && !force) return // Skip speaking if paused and not forced
+
         if (this::textToSpeech.isInitialized && (!isSpeaking || force)) {
             val params = Bundle()
             params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "messageId")
@@ -695,6 +718,7 @@ class Detector(
     fun detect(frame: Bitmap) {
         interpreter ?: return
         if (tensorWidth == 0 || tensorHeight == 0 || numChannel == 0 || numElements == 0) return
+        if (areAnnouncementsPaused) return
 
         var inferenceTime = SystemClock.uptimeMillis()
 

@@ -591,36 +591,40 @@ class MainActivity : AppCompatActivity(), DetectorListener {
         imageAnalyzer = createImageAnalyzer()
 
         imageAnalyzer?.setAnalyzer(cameraExecutor) { imageProxy ->
-            val bitmapBuffer =
-                Bitmap.createBitmap(
-                    imageProxy.width,
-                    imageProxy.height,
-                    Bitmap.Config.ARGB_8888
-                )
-            imageProxy.use { bitmapBuffer.copyPixelsFromBuffer(imageProxy.planes[0].buffer) }
-            imageProxy.close()
-
-            val matrix = Matrix().apply {
-                postRotate(imageProxy.imageInfo.rotationDegrees.toFloat())
-
-                if (isFrontCamera) {
-                    postScale(
-                        -1f,
-                        1f,
-                        imageProxy.width.toFloat(),
-                        imageProxy.height.toFloat()
+            if (!isDetectionPaused) {
+                val bitmapBuffer =
+                    Bitmap.createBitmap(
+                        imageProxy.width,
+                        imageProxy.height,
+                        Bitmap.Config.ARGB_8888
                     )
+                imageProxy.use { bitmapBuffer.copyPixelsFromBuffer(imageProxy.planes[0].buffer) }
+                imageProxy.close()
+
+                val matrix = Matrix().apply {
+                    postRotate(imageProxy.imageInfo.rotationDegrees.toFloat())
+
+                    if (isFrontCamera) {
+                        postScale(
+                            -1f,
+                            1f,
+                            imageProxy.width.toFloat(),
+                            imageProxy.height.toFloat()
+                        )
+                    }
                 }
+
+                val rotatedBitmap = Bitmap.createBitmap(
+                    bitmapBuffer, 0, 0, bitmapBuffer.width, bitmapBuffer.height,
+                    matrix, true
+                )
+
+                detector.detect(rotatedBitmap)
+            } else {
+                // Just close the image when detection is paused
+                imageProxy.close()
             }
-
-            val rotatedBitmap = Bitmap.createBitmap(
-                bitmapBuffer, 0, 0, bitmapBuffer.width, bitmapBuffer.height,
-                matrix, true
-            )
-
-            detector.detect(rotatedBitmap)
         }
-
         cameraProvider.unbindAll()
 
         try {
@@ -750,14 +754,18 @@ class MainActivity : AppCompatActivity(), DetectorListener {
                     Double press scans objects in front of you.
                     Triple press activates voice commands.
                     Four presses sends your location to guardians.
+                    Five presses starts automatic scanning.
+                    Six presses stops automatic scanning.
                     Say 'stop listening' to end voice recognition.
                     
-                    Maligayang pagdating sa sistema ng pagtukoy ng bagay.
-                    Isang pindot para sa gabay na ito.
-                    Dalawang pindot para ma-scan ang mga bagay sa harap mo.
-                    Tatlong pindot para sa boses na utos.
-                    Apat na pindot para ipadala ang iyong lokasyon sa mga guardian.
-                    Sabihin ang 'tumigil sa pakikinig' para matapos ang voice recognition.
+//                    Maligayang pagdating sa sistema ng pagtukoy ng bagay.
+//                    Isang pindot para sa gabay na ito.
+//                    Dalawang pindot para ma-scan ang mga bagay sa harap mo.
+//                    Tatlong pindot para sa boses na utos.
+//                    Apat na pindot para ipadala ang iyong lokasyon sa mga guardian.
+//                    Limang pindot para simulan ang awtomatikong pag-scan.
+//                    Anim na pindot para ihinto ang awtomatikong pag-scan.
+//                    Sabihin ang 'tumigil sa pakikinig' para matapos ang voice recognition.
                 """.trimIndent()
                         detector.speak(tutorialMessage, true)
                     }
@@ -842,9 +850,72 @@ class MainActivity : AppCompatActivity(), DetectorListener {
                         }
                     }
                 }
+                5 -> {
+                    Log.d(TAG, "Five presses - Resume scanning")
+                    if (requestAudioFocus()) {
+                        // Vibrate pattern for resuming scan
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            vibrator.vibrate(VibrationEffect.createWaveform(
+                                longArrayOf(0, 100, 50, 100, 50, 100, 50, 100, 50), -1))
+                        } else {
+                            @Suppress("DEPRECATION")
+                            vibrator.vibrate(longArrayOf(0, 100, 50, 100, 50, 100, 50, 100, 50), -1)
+                        }
+
+                        // Resume automatic scanning and detection
+                        resumeObjectDetection()
+                        detector.speak("Scanning resumed.", true)
+                    }
+                }
+                6 -> {
+                    Log.d(TAG, "Six presses - Stop all scanning")
+                    if (requestAudioFocus()) {
+                        // Vibrate pattern for completely stopping scan
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            vibrator.vibrate(VibrationEffect.createWaveform(
+                                longArrayOf(0, 200, 100, 200, 100, 200), -1))
+                        } else {
+                            @Suppress("DEPRECATION")
+                            vibrator.vibrate(longArrayOf(0, 200, 100, 200, 100, 200), -1)
+                        }
+
+                        // Stop all scanning completely
+                        pauseObjectDetection()
+                        detector.speak("All scanning stopped. App is now silent. Tap 5 times to resume.", true)
+                    }
+                }
             }
             pressCount = 0
         }, MULTI_PRESS_TIMEOUT)
+    }
+    private var isDetectionPaused = false
+    private fun pauseObjectDetection() {
+        // Stop automatic scanning if active
+        stopAutomaticScan()
+
+        // Pause detector operations
+        isDetectionPaused = true
+        detector.pauseAllAnnouncements()
+
+        // Visual feedback (optional)
+        Toast.makeText(
+            this@MainActivity,
+            "All scanning stopped. App is now silent.",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun resumeObjectDetection() {
+        // Resume detector operations
+        isDetectionPaused = false
+        detector.resumeAllAnnouncements()
+
+        // Visual feedback (optional)
+        Toast.makeText(
+            this@MainActivity,
+            "Scanning resumed",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private var isAutomaticScanActive = false
@@ -859,13 +930,36 @@ class MainActivity : AppCompatActivity(), DetectorListener {
     }
 
     private fun startAutomaticScan() {
-        isAutomaticScanActive = true
-        automaticScanHandler.post(automaticScanRunnable)
+        if (!isAutomaticScanActive) {
+            isAutomaticScanActive = true
+
+            // Provide initial scan immediately
+            detector.announceAllObjects(true)
+
+            // Then schedule recurring scans
+            automaticScanHandler.postDelayed(automaticScanRunnable, 5000)
+
+            // Visual feedback (optional)
+            Toast.makeText(
+                this@MainActivity,
+                "Automatic scanning started",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun stopAutomaticScan() {
-        isAutomaticScanActive = false
-        automaticScanHandler.removeCallbacks(automaticScanRunnable)
+        if (isAutomaticScanActive) {
+            isAutomaticScanActive = false
+            automaticScanHandler.removeCallbacks(automaticScanRunnable)
+
+            // Visual feedback (optional)
+            Toast.makeText(
+                this@MainActivity,
+                "Automatic scanning stopped",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
     // Override onKeyUp to handle button release
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
@@ -882,14 +976,16 @@ class MainActivity : AppCompatActivity(), DetectorListener {
     // onDestroy method called when the activity is destroyed
     override fun onDestroy() {
         // Stop location tracking
+        stopAutomaticScan()
+        handler.removeCallbacksAndMessages(null)
         if (::locationTracker.isInitialized) {
             locationTracker.stopTracking()
         }
 
         // Your existing cleanup code
         super.onDestroy()
-        stopAutomaticScan()
-        handler.removeCallbacksAndMessages(null)
+//        stopAutomaticScan()
+//        handler.removeCallbacksAndMessages(null)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
         }
